@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Profile>Reach</Profile>
+  <Platform>Windows</Platform>
+  <Config />
+  <SourceFiles>
+    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/bet.png</File>
+    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/bg.png</File>
+    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/bigInfo.spritefont</File>
+    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/card_set.gif</File>
+    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/Score.spritefont</File>
+    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/stand.png</File>
+    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/tinyInfo.spritefont</File>
+    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/tokens.png</File>
+  </SourceFiles>
+</SourceFileCollection>
