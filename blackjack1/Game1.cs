@@ -55,7 +55,7 @@ namespace blackjack1
             playerTurn = false;
             firstTurn = true;
             firstCards = false;
-            this.IsMouseVisible = true;
+            IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -68,14 +68,14 @@ namespace blackjack1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             previousState = Mouse.GetState();
-            background = this.Content.Load<Texture2D>("bg"); //Load background file
-            cards = this.Content.Load<Texture2D>("card_set"); //Load card set file
-            token = this.Content.Load<Texture2D>("tokens");
-            stand = this.Content.Load<Texture2D>("stand");
-            placeBets = this.Content.Load<Texture2D>("bet");
-            info = this.Content.Load<SpriteFont>("Score");
-            tinyInfo = this.Content.Load<SpriteFont>("tinyInfo");
-            bigInfo = this.Content.Load<SpriteFont>("bigInfo");
+            background = Content.Load<Texture2D>("bg"); //Load background file
+            cards = Content.Load<Texture2D>("card_set"); //Load card set file
+            token = Content.Load<Texture2D>("tokens");
+            stand = Content.Load<Texture2D>("stand");
+            placeBets = Content.Load<Texture2D>("bet");
+            info = Content.Load<SpriteFont>("Score");
+            tinyInfo = Content.Load<SpriteFont>("tinyInfo");
+            bigInfo = Content.Load<SpriteFont>("bigInfo");
             standButton = new Sprite(stand, new Rectangle(1315, 200, 170, 87), new Rectangle(0, 0, 170, 87));
             placeBetsButton = new Sprite(placeBets, new Rectangle(330, 730, 170, 87), new Rectangle(0, 0, 170, 87));
             betBox = new Bet();
@@ -103,18 +103,18 @@ namespace blackjack1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             //If not enough money to play, can't play
-            if (player1.GetMoney() + betBox.GetTotal() != 0 && player1.GetMoney() + betBox.GetTotal() != 10)
+            if (player1.Money + betBox.Total != 0 && player1.Money + betBox.Total != 10)
             {
                 MouseState state = Mouse.GetState();
                 //Player's turn
                 if (playerTurn)
                 {
                     player1.Update(gameTime, mainDeck, state, previousState, standButton, placeBetsButton, betBox, ref playerTurn, ref AITurn);
-                    if (placeBetsButton.GetClicked() & !firstCards)
+                    if (placeBetsButton.Clicked & !firstCards)
                     {
                         player1.DrawCards(2, mainDeck);
                         dealer1.DrawCards(2, mainDeck);
-                        dealer1.GetHand()[dealer1.GetHand().Count - 1].FlipCard();
+                        dealer1.Hand[dealer1.Hand.Count - 1].FlipCard();
                         firstCards = true;
                     }
                 }
@@ -150,7 +150,7 @@ namespace blackjack1
                     firstTurn = false;
                     startDealerTurn = true;
                     firstCards = false;
-                    placeBetsButton.SetClicked(false);
+                    placeBetsButton.Clicked = false;
                 }
                 previousState = state;
             }
@@ -167,7 +167,7 @@ namespace blackjack1
             
             spriteBatch.Begin();
             spriteBatch.Draw(background, destinationRectangle: new Rectangle(0, 0, 1600, 900), color: Color.White); //Background
-            if (player1.GetMoney() + betBox.GetTotal() == 0)
+            if (player1.Money + betBox.Total == 0)
                 spriteBatch.DrawString(bigInfo, "YOU LOOSE !", new Vector2(600, 560), Color.Red);
             else
             {
@@ -185,17 +185,17 @@ namespace blackjack1
         {
             if (playerScore <= 21)
             {
-                if (playerScore == 21 & player1.GetHand().Count == 2)
+                if (playerScore == 21 & player1.Hand.Count == 2)
                 {
                     //If blackjack for player but not for dealer
-                    if (!(dealerScore == 21 & dealer1.GetHand().Count == 2))
+                    if (!(dealerScore == 21 & dealer1.Hand.Count == 2))
                         return 3;
                     //If blackjacks on both sides
-                    if (dealerScore == 21 & dealer1.GetHand().Count == 2)
+                    if (dealerScore == 21 & dealer1.Hand.Count == 2)
                         return 0;
                 }
                 //If blackjack for dealer but not for player
-                else if (dealerScore == 21 & dealer1.GetHand().Count == 2)
+                else if (dealerScore == 21 & dealer1.Hand.Count == 2)
                     return 2;
                 //If player better than dealer and did not bust
                 else if (playerScore > dealerScore)
@@ -227,18 +227,18 @@ namespace blackjack1
             {
                 //If draw, get back the bet
                 case 0:
-                    player1.SetMoney(player1.GetMoney() + betBox.GetTotal());
+                    player1.Money = player1.Money + betBox.Total;
                     break;
                 //If win, get twice the bet
                 case 1:
-                    player1.SetMoney(player1.GetMoney() + betBox.GetTotal()*2);
+                    player1.Money = player1.Money + betBox.Total*2;
                     break;
                 //If lose, get nothing
                 case 2:
                     break;
                 //If win by blackjack, get two-and-a-half times the bet
                 case 3:
-                    player1.SetMoney(player1.GetMoney() + betBox.GetTotal() * 2.5);
+                    player1.Money = player1.Money + betBox.Total * 2.5;
                     break;
                 default:
                     break;

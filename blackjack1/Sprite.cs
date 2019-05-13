@@ -13,86 +13,52 @@ namespace blackjack1
     class Sprite
     {
         //VARIABLES
-        protected Texture2D texture;
-        protected Rectangle destinationRectangle;
-        protected Rectangle sourceRectangle;
-        protected bool clicked;
-        protected Rectangle beforeDragDestinationRectangle;
-        
+        public Rectangle DestinationRectangle { get; set; }
+        public Rectangle SourceRectangle { get; set; }
+        public Rectangle BeforeDragDestinationRectangle { get; set; }
+        public bool Clicked { get; set; }
+        public Texture2D Texture { get; }
+
         //CONSTRUCTOR
         public Sprite(Texture2D texture, Rectangle destinationRectangle, Rectangle sourceRectangle)
         {
-            this.texture = texture;
-            this.clicked = false;
-            this.destinationRectangle = destinationRectangle;
-            this.sourceRectangle = sourceRectangle;
+            Texture = texture;
+            Clicked = false;
+            DestinationRectangle = destinationRectangle;
+            SourceRectangle = sourceRectangle;
         }
-
-        //GETTERS SETTERS
-        public Rectangle GetDestinationRectangle()
-        {
-            return destinationRectangle;
-        }
-        public void SetDestinationRectangle(Rectangle rect)
-        {
-            destinationRectangle = rect;
-        }
-        public Rectangle GetSourceRectangle()
-        {
-            return sourceRectangle;
-        }
-        public void SetSourceRectangle(Rectangle rect)
-        {
-            sourceRectangle = rect;
-        }
-        public Rectangle GetBeforeDragDestinationRectangle()
-        {
-            return beforeDragDestinationRectangle;
-        }
-        public void SetBeforeDragDestinationRectangle(Rectangle before)
-        {
-            this.beforeDragDestinationRectangle = before;
-        }
-        public bool GetClicked()
-        {
-            return clicked;
-        }
-        public void SetClicked(bool clicked)
-        {
-            this.clicked = clicked;
-        }
-
+        
         //DISPLAY ON SCREEN
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture: texture, destinationRectangle: destinationRectangle, color: Color.White, sourceRectangle: sourceRectangle);
+            spriteBatch.Draw(texture: Texture, destinationRectangle: DestinationRectangle, color: Color.White, sourceRectangle: SourceRectangle);
         }
 
-        public bool isClicked(MouseState state, MouseState previousState)
+        public bool IsClicked(MouseState state, MouseState previousState)
         {
-            if(GetDestinationRectangle().Contains(state.X, state.Y))
+            if(DestinationRectangle.Contains(state.X, state.Y))
             {
                 if (state.LeftButton == ButtonState.Pressed & previousState.LeftButton != ButtonState.Pressed)
                 {
-                    this.SetClicked(true);
+                    Clicked = true;
                     return true;
                 }
             }
             return false;
         }
 
-        public bool isHolded(MouseState state, MouseState previousState)
+        public bool IsHolded(MouseState state, MouseState previousState)
         {
-            if (this.GetClicked() & state.LeftButton == ButtonState.Pressed & previousState.LeftButton == ButtonState.Pressed)
+            if (Clicked & state.LeftButton == ButtonState.Pressed & previousState.LeftButton == ButtonState.Pressed)
                 return true;
             return false;
         }
 
-        public bool isReleased(MouseState state, MouseState previousState)
+        public bool IsReleased(MouseState state, MouseState previousState)
         {
             if (state.LeftButton == ButtonState.Released & previousState.LeftButton == ButtonState.Pressed)
             {
-                this.SetClicked(false);
+                Clicked = false;
                 return true;
             }
             return false;

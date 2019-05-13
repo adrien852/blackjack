@@ -9,15 +9,16 @@ using System.Threading.Tasks;
 namespace blackjack1
 {
     class Deck : Sprite
-    {   //VARIABLES
-        private int numberOfCards;
-        private List<Card> cards;
+    {
+        //VARIABLES
+        public int NumberOfCards { get; }
+        public List<Card> Cards { get; }
 
         //CONSTRUCTOR
         public Deck(int numberOfCards, Texture2D texture) : base(texture, new Rectangle(1338, 18, 125, 181), new Rectangle(0, 724, 125, 181))
         {
-            this.numberOfCards = numberOfCards;
-            this.cards = new List<Card>();
+            NumberOfCards = numberOfCards;
+            Cards = new List<Card>();
             if (numberOfCards == 52) //If deck of 52 cards, traditional settings
             {
                 string[] colors = new string[] { "H", "D", "C", "S" }; //Diamonds, Clubs, Spades, Hearts
@@ -39,8 +40,8 @@ namespace blackjack1
                             {
                                 card = new Card($"{j}", colors[i], j, texture);
                             }
-                            card.SetSourceRectangle(new Rectangle(125 * (j - 1), 181 * i, 125, 181));
-                            this.cards.Add(card);
+                            card.SourceRectangle = new Rectangle(125 * (j - 1), 181 * i, 125, 181);
+                            Cards.Add(card);
                         }
                         else
                         {
@@ -48,18 +49,18 @@ namespace blackjack1
                             {
                                 case 11:
                                     var card = new Card("J", colors[i], 10, texture);
-                                    card.SetSourceRectangle(new Rectangle(125 * (j - 1), 181 * i, 125, 181));
-                                    this.cards.Add(card);
+                                    card.SourceRectangle = new Rectangle(125 * (j - 1), 181 * i, 125, 181);
+                                    Cards.Add(card);
                                     break;
                                 case 12:
                                     card = new Card("Q", colors[i], 10, texture);
-                                    card.SetSourceRectangle(new Rectangle(125 * (j - 1), 181 * i, 125, 181));
-                                    this.cards.Add(card);
+                                    card.SourceRectangle = new Rectangle(125 * (j - 1), 181 * i, 125, 181);
+                                    Cards.Add(card);
                                     break;
                                 case 13:
                                     card = new Card("K", colors[i], 10, texture);
-                                    card.SetSourceRectangle(new Rectangle(125 * (j - 1), 181 * i, 125, 181));
-                                    this.cards.Add(card);
+                                    card.SourceRectangle = new Rectangle(125 * (j - 1), 181 * i, 125, 181);
+                                    Cards.Add(card);
                                     break;
                                 default:
                                     break;
@@ -74,21 +75,11 @@ namespace blackjack1
             }
         }
 
-        //GETTERS
-        public int GetNumberOfCards()
-        {
-            return this.numberOfCards;
-        }
-        public List<Card> GetCards()
-        {
-            return this.cards;
-        }
-
         //DEBUG
         public void ShowDeckInOutput()
         {
             string display = "Deck : ";
-            GetCards().ForEach(item => display += item + " ");
+            Cards.ForEach(item => display += item + " ");
             Console.WriteLine(display);
         }
     }
