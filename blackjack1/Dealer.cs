@@ -18,6 +18,7 @@ namespace blackjack1
         //CONSTRUCTOR
         public Dealer(double money, Texture2D tokenTexture) : base(money, tokenTexture)
         {
+            TokenRectangle = new Rectangle(-50, -50, 490, 320);
         }
 
         //GAMEPLAY (Artificial intelligence)
@@ -39,20 +40,28 @@ namespace blackjack1
         }
 
         //DISPLAY ON SCREEN
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, Animation animation, SpriteFont score, bool selfTurn)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, Animation animation, SpriteFont info, bool selfTurn)
         {
             //Dealer's hand
             Hand.ForEach(card => card.Draw(spriteBatch));
+            //Dealer's tokens
+            foreach (List<Token> tokenList in TokenLists)
+            {
+                foreach (Token token in tokenList)
+                    token.Draw(spriteBatch);
+            }
+            //Dealer's money
+            spriteBatch.DrawString(info, "Money : " + Money, new Vector2(350, 20), Color.White);
             //Dealer's score
             if (selfTurn)
             {
-                spriteBatch.DrawString(score, "Score : " + GetHandValue(), new Vector2(720, 300), Color.White);
+                spriteBatch.DrawString(info, "Score : " + GetHandValue(), new Vector2(720, 300), Color.White);
             }
             //If not dealer's turn, only first card value
             else
             {
                 if (Hand.Count != 0)
-                    spriteBatch.DrawString(score, "Score : " + Hand[0].Value, new Vector2(720, 300), Color.White);
+                    spriteBatch.DrawString(info, "Score : " + Hand[0].Value, new Vector2(720, 300), Color.White);
             }
         }
 
@@ -88,6 +97,38 @@ namespace blackjack1
         public void PassTurn(ref bool selfTurn)
         {
             selfTurn = false;
+        }
+
+        //Add a token in the proper token list
+        public override void SetTokensFromToken(Token token)
+        {
+            switch (token.Value)
+            {
+                case 10:
+                    token.DestinationRectangle = new Rectangle(20, 0, 100, 99);
+                    TokenLists[0].Add(token);
+                    break;
+                case 20:
+                    token.DestinationRectangle = new Rectangle(120, 0, 100, 99);
+                    TokenLists[1].Add(token);
+                    break;
+                case 50:
+                    token.DestinationRectangle = new Rectangle(220, 0, 100, 99);
+                    TokenLists[2].Add(token);
+                    break;
+                case 1000:
+                    token.DestinationRectangle = new Rectangle(220, 100, 100, 99);
+                    TokenLists[3].Add(token);
+                    break;
+                case 500:
+                    token.DestinationRectangle = new Rectangle(120, 100, 100, 99);
+                    TokenLists[4].Add(token);
+                    break;
+                case 100:
+                    token.DestinationRectangle = new Rectangle(20, 100, 100, 99);
+                    TokenLists[5].Add(token);
+                    break;
+            }
         }
     }
 }

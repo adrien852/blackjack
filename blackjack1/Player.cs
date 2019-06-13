@@ -13,7 +13,7 @@ namespace blackjack1
     {
         //VARIABLES
         //In tokens, first list is tokens of 1000, then 500, 100, 50, 20, 10
-        public Rectangle TokenRectangle { get; }
+        public Rectangle TokenRectangle { get; set; }
         public List<List<Token>> TokenLists { get; set; }
         public double Money { get; set; }
         public List<Card> Hand { get; set; }
@@ -71,34 +71,40 @@ namespace blackjack1
             CreateTokenList(100, ref total, texture);
             while (total - 10 >= 0)
             {
-                CreateTokenList(2, 50, ref total, texture);
-                CreateTokenList(1, 20, ref total, texture);
-                CreateTokenList(0, 10, ref total, texture);
+                CreateTokenList(50, ref total, texture);
+                CreateTokenList(20, ref total, texture);
+                CreateTokenList(10, ref total, texture);
             }
         }
 
         //Add a token in the proper token list
-        public void SetTokensFromToken(Token token)
+        public virtual void SetTokensFromToken(Token token)
         {
             switch (token.Value)
             {
                 case 10:
-                    TokenLists[0].Add(new Token(10, token.Texture));
+                    token.DestinationRectangle = new Rectangle(20, 700, 100, 99);
+                    TokenLists[0].Add(token);
                     break;
                 case 20:
-                    TokenLists[1].Add(new Token(20, token.Texture));
+                    token.DestinationRectangle = new Rectangle(120, 700, 100, 99);
+                    TokenLists[1].Add(token);
                     break;
                 case 50:
-                    TokenLists[2].Add(new Token(50, token.Texture));
+                    token.DestinationRectangle = new Rectangle(220, 700, 100, 99);
+                    TokenLists[2].Add(token);
                     break;
                 case 1000:
-                    TokenLists[3].Add(new Token(1000, token.Texture));
+                    token.DestinationRectangle = new Rectangle(220, 800, 100, 99);
+                    TokenLists[3].Add(token);
                     break;
                 case 500:
-                    TokenLists[4].Add(new Token(500, token.Texture));
+                    token.DestinationRectangle = new Rectangle(120, 800, 100, 99);
+                    TokenLists[4].Add(token);
                     break;
                 case 100:
-                    TokenLists[5].Add(new Token(100, token.Texture));
+                    token.DestinationRectangle = new Rectangle(20, 800, 100, 99);
+                    TokenLists[5].Add(token);
                     break;
             }
         }
@@ -107,12 +113,11 @@ namespace blackjack1
         public void CreateTokenList(int value, ref double total, Texture2D texture)
         {
             TokenLists.Add(new List<Token>());
-            int size = TokenLists.Count - 1;
             if (value > 50)
             {
                 while (total > 3 * value)
                 {
-                    TokenLists[size].Add(new Token(value, texture));
+                    SetTokensFromToken(new Token(value, texture));
                     total -= value;
                 }
             }
@@ -121,18 +126,10 @@ namespace blackjack1
                 int amount = 0;
                 while (total - value >= 0 & amount < 4)
                 {
-                    TokenLists[size].Add(new Token(value, texture));
+                    SetTokensFromToken(new Token(value, texture));
                     total -= value;
                     ++amount;
                 }
-            }
-        }
-        public void CreateTokenList(int index, int value, ref double total, Texture2D texture)
-        {
-            while (total - value >= 0)
-            {
-                TokenLists[index].Add(new Token(value, texture));
-                total -= value;
             }
         }
 

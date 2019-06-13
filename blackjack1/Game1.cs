@@ -151,6 +151,7 @@ namespace blackjack1
                         int dealerScore = dealer1.GetHandValue();
                         ShareBets(Winner(playerScore, dealerScore));
                         player1.SetTokensFromMoney(token);
+                        dealer1.SetTokensFromMoney(token);
                         player1.DiscardHand();
                         dealer1.DiscardHand();
                     }
@@ -183,6 +184,9 @@ namespace blackjack1
             //If no money left, "YOU LOOSE" message
             if (player1.Money + betBox.Total == 0)
                 spriteBatch.DrawString(bigInfo, "YOU LOOSE !", new Vector2(600, 560), Color.Red);
+            //If dealer has no money left, "YOU WIN" message
+            else if (dealer1.Money <= 0)
+                spriteBatch.DrawString(bigInfo, "YOU WIN !", new Vector2(600, 560), Color.Red);
             else
             {
                 mainDeck.Draw(spriteBatch); //Deck
@@ -241,18 +245,21 @@ namespace blackjack1
             {
                 //If draw, get back the bet
                 case 0:
-                    player1.Money = player1.Money + betBox.Total;
+                    player1.Money += betBox.Total;
                     break;
                 //If win, get twice the bet
                 case 1:
-                    player1.Money = player1.Money + betBox.Total*2;
+                    player1.Money += betBox.Total * 2;
+                    dealer1.Money -= betBox.Total;
                     break;
                 //If lose, get nothing
                 case 2:
+                    dealer1.Money += betBox.Total;
                     break;
                 //If win by blackjack, get two-and-a-half times the bet
                 case 3:
-                    player1.Money = player1.Money + betBox.Total * 2.5;
+                    player1.Money += betBox.Total * 2.5;
+                    dealer1.Money -= betBox.Total * 1.5;
                     break;
                 default:
                     break;

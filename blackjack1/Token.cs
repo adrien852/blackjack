@@ -22,27 +22,21 @@ namespace blackjack1
             switch (value)
             {
                 case 10:
-                    DestinationRectangle = new Rectangle(20, 700, 100, 99);
                     SourceRectangle = new Rectangle(0, 0, 100, 99);
                     break;
                 case 20:
-                    DestinationRectangle = new Rectangle(120, 700, 100, 99);
                     SourceRectangle = new Rectangle(100, 0, 100, 99);
                     break;
                 case 50:
-                    DestinationRectangle = new Rectangle(220, 700, 100, 99);
                     SourceRectangle = new Rectangle(200, 0, 100, 99);
                     break;
                 case 100:
-                    DestinationRectangle = new Rectangle(20, 800, 100, 99);
                     SourceRectangle = new Rectangle(0, 99, 100, 99);
                     break;
                 case 500:
-                    DestinationRectangle = new Rectangle(120, 800, 100, 99);
                     SourceRectangle = new Rectangle(100, 99, 100, 99);
                     break;
                 case 1000:
-                    DestinationRectangle = new Rectangle(220, 800, 100, 99);
                     SourceRectangle = new Rectangle(202, 99, 100, 99);
                     break;
                 default:
