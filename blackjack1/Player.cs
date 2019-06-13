@@ -43,7 +43,7 @@ namespace blackjack1
             }
             Money = total;
         }
-       
+
         //Get the value from each card and return the lowest total hand value.
         public int GetHandValue()
         {
@@ -69,7 +69,7 @@ namespace blackjack1
             CreateTokenList(1000, ref total, texture);
             CreateTokenList(500, ref total, texture);
             CreateTokenList(100, ref total, texture);
-            while(total - 10 >= 0)
+            while (total - 10 >= 0)
             {
                 CreateTokenList(2, 50, ref total, texture);
                 CreateTokenList(1, 20, ref total, texture);
@@ -145,7 +145,7 @@ namespace blackjack1
         }
 
         //GAMEPLAY
-        public virtual void Update(GameTime gameTime, Deck deck, MouseState state, MouseState previousState, Sprite passButton, Sprite placeBetsButton, Bet betBox, ref bool selfTurn, ref bool opponentTurn)
+        public virtual void Update(GameTime gameTime, Deck deck, MouseState state, MouseState previousState, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, Bet betBox, ref bool selfTurn, ref bool opponentTurn)
         {
             //Player draws cards by clicking on deck
             if (deck.IsClicked(state, previousState))
@@ -176,7 +176,7 @@ namespace blackjack1
                         }
                     }
                 }
-                //If a token from the bet is dragged to the player's token, it's added to the player's tokens, removed from bet and the totals are updated
+                //If a token from the bet is dragged to the player's tokens, it's added to the player's tokens, removed from bet and the totals are updated
                 foreach (List<Token> tokenList in betBox.TokenLists)
                 {
                     if (tokenList.Count > 0)
@@ -191,26 +191,32 @@ namespace blackjack1
                         }
                     }
                 }
+                //Player can bet all tokens by tapping Allin button
+                if (allinButton.IsClicked(state, previousState))
+                {
+                    Allin(betBox);
+                }
                 //Player confirms the bets (not empty and multiple of 20) by clicking on the placeBetsButton
-                if (betBox.Total != 0 & betBox.Total%20 == 0)
+                if (betBox.Total != 0 & betBox.Total % 20 == 0)
                     placeBetsButton.IsClicked(state, previousState);
             }
         }
 
         //DISPLAY ON SCREEN
-        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch, SpriteFont info, SpriteFont tinyInfo, Sprite passButton, Sprite placeBetsButton, bool selfTurn)
+        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch, SpriteFont info, SpriteFont tinyInfo, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, bool selfTurn)
         {
             //Player's hand
-            if(Hand.Count != 0)
+            if (Hand.Count != 0)
                 Hand.ForEach(card => card.Draw(spriteBatch));
             //Player's score
             if (placeBetsButton.Clicked)
                 spriteBatch.DrawString(info, "Score : " + GetHandValue(), new Vector2(720, 560), Color.White);
-            //Stand button
+            //Stand and Allin buttons
             if (selfTurn)
             {
                 if (!placeBetsButton.Clicked)
                 {
+                    allinButton.Draw(spriteBatch);
                     placeBetsButton.Draw(spriteBatch);
                     spriteBatch.DrawString(tinyInfo, "Must be a multiple of 20", new Vector2(57, 290), Color.White);
                 }
@@ -222,7 +228,7 @@ namespace blackjack1
             }
 
             //Player's tokens
-            foreach(List<Token> tokenList in TokenLists)
+            foreach (List<Token> tokenList in TokenLists)
             {
                 foreach (Token token in tokenList)
                     token.Draw(spriteBatch);
@@ -235,7 +241,7 @@ namespace blackjack1
         public virtual void DrawCards(int numberOfCards, Deck deck)
         {
 
-            for (int i=0;i<numberOfCards;i++)
+            for (int i = 0; i < numberOfCards; i++)
             {
                 Card card = deck.Cards[0];
                 var size = Hand.Count();
@@ -255,6 +261,19 @@ namespace blackjack1
         {
             Hand.Clear();
         }
-        
+
+        public void Allin(Bet betBox)
+        {
+            foreach (List<Token> tokenList in TokenLists)
+            {
+                while(tokenList.Count > 0)
+                {
+                    betBox.SetTokens(tokenList[0]);
+                    tokenList.Remove(tokenList[0]);
+                }
+            }
+            SetMoneyFromTokens();
+            betBox.SetTotalFromTokens();
+        }
     }
 }

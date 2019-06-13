@@ -15,6 +15,7 @@ namespace blackjack1
         public string Number { get; }
         public int Value { get; set; }
         public Rectangle FlippedSourceRectangle { get; set; }
+        public Vector2 Scale { get; set; }
 
         //CONSTRUCTOR
         //By default, a card is a flipped card in the deck slot
@@ -24,6 +25,7 @@ namespace blackjack1
             Number = number;
             Value = value;
             FlippedSourceRectangle = new Rectangle(0, 724, 125, 181);
+            //Scale = new Vector2(1, 1);
         }
 
         //DISPLAY
@@ -35,10 +37,13 @@ namespace blackjack1
         //Flip the card by getting the flipped sprite and replacing it with the current sprite
         public void FlipCard()
         {
+            //Scale -= new Vector2(0.1f, 0.1f);
+            //Console.WriteLine(Scale);
             Rectangle temp;
             temp = SourceRectangle;
             SourceRectangle = FlippedSourceRectangle;
             FlippedSourceRectangle = temp;
+
         }
     }
 }

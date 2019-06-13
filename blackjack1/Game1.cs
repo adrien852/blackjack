@@ -18,11 +18,15 @@ namespace blackjack1
         Texture2D cards;
         Texture2D token;
         Texture2D stand;
+        Texture2D allin;
         Texture2D placeBets;
         SpriteFont info;
         SpriteFont tinyInfo;
         SpriteFont bigInfo;
+        Animation animation;
+        Animation previousAnimation;
         Deck mainDeck;
+        Sprite allinButton;
         Sprite standButton;
         Sprite placeBetsButton;
         Bet betBox;
@@ -72,12 +76,15 @@ namespace blackjack1
             cards = Content.Load<Texture2D>("card_set"); //Load card set file
             token = Content.Load<Texture2D>("tokens");
             stand = Content.Load<Texture2D>("stand");
+            allin = Content.Load<Texture2D>("allin");
             placeBets = Content.Load<Texture2D>("bet");
             info = Content.Load<SpriteFont>("Score");
             tinyInfo = Content.Load<SpriteFont>("tinyInfo");
             bigInfo = Content.Load<SpriteFont>("bigInfo");
+            allinButton = new Sprite(allin, new Rectangle(330, 630, 170, 87), new Rectangle(0, 0, 170, 87));
             standButton = new Sprite(stand, new Rectangle(1315, 200, 170, 87), new Rectangle(0, 0, 170, 87));
             placeBetsButton = new Sprite(placeBets, new Rectangle(330, 730, 170, 87), new Rectangle(0, 0, 170, 87));
+            animation = new Animation();
             betBox = new Bet();
             player1 = new Player(2000, token);
             dealer1 = new Dealer(5000, token);
@@ -109,13 +116,18 @@ namespace blackjack1
                 //Player's turn
                 if (playerTurn)
                 {
-                    player1.Update(gameTime, mainDeck, state, previousState, standButton, placeBetsButton, betBox, ref playerTurn, ref AITurn);
+                    player1.Update(gameTime, mainDeck, state, previousState, allinButton, standButton, placeBetsButton, betBox, ref playerTurn, ref AITurn);
                     if (placeBetsButton.Clicked & !firstCards)
                     {
                         player1.DrawCards(2, mainDeck);
                         dealer1.DrawCards(2, mainDeck);
                         dealer1.Hand[dealer1.Hand.Count - 1].FlipCard();
                         firstCards = true;
+                    }
+                    if (placeBetsButton.Clicked & firstCards)
+                    {
+                        if (player1.Hand[player1.Hand.Count - 1].IsClicked(state, previousState))
+                            player1.Hand[player1.Hand.Count - 1].FlipCard();
                     }
                 }
                 //Dealer's turn (AI)
@@ -153,6 +165,7 @@ namespace blackjack1
                     placeBetsButton.Clicked = false;
                 }
                 previousState = state;
+                previousAnimation = animation;
             }
             base.Update(gameTime);
         }
@@ -167,14 +180,15 @@ namespace blackjack1
             
             spriteBatch.Begin();
             spriteBatch.Draw(background, destinationRectangle: new Rectangle(0, 0, 1600, 900), color: Color.White); //Background
+            //If no money left, "YOU LOOSE" message
             if (player1.Money + betBox.Total == 0)
                 spriteBatch.DrawString(bigInfo, "YOU LOOSE !", new Vector2(600, 560), Color.Red);
             else
             {
                 mainDeck.Draw(spriteBatch); //Deck
-                betBox.Draw(spriteBatch, info);
-                player1.Draw(gameTime, spriteBatch, info, tinyInfo, standButton, placeBetsButton, playerTurn); //Player drawing
-                dealer1.Draw(gameTime, spriteBatch, info, AITurn); //Dealer drawing
+                betBox.Draw(spriteBatch, info); //Bet box
+                player1.Draw(gameTime, spriteBatch, info, tinyInfo, allinButton, standButton, placeBetsButton, playerTurn); //Player drawing
+                dealer1.Draw(gameTime, spriteBatch, animation, info, AITurn); //Dealer drawing
             }
             spriteBatch.End();
             base.Draw(gameTime);

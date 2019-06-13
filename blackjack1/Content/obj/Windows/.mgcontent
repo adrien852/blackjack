@@ -4,13 +4,25 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/bet.png</File>
-    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/bg.png</File>
-    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/bigInfo.spritefont</File>
-    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/card_set.gif</File>
-    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/Score.spritefont</File>
-    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/stand.png</File>
-    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/tinyInfo.spritefont</File>
-    <File>D:/MonoGame projects/blackjack1/blackjack1/Content/tokens.png</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/allin.png</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/bet.png</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/bg.png</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/bigInfo.spritefont</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/card_set.gif</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/Score.spritefont</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/stand.png</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/tinyInfo.spritefont</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/tokens.png</File>
   </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
 </SourceFileCollection>

@@ -39,7 +39,7 @@ namespace blackjack1
         }
 
         //DISPLAY ON SCREEN
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, SpriteFont score, bool selfTurn)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, Animation animation, SpriteFont score, bool selfTurn)
         {
             //Dealer's hand
             Hand.ForEach(card => card.Draw(spriteBatch));

@@ -34,6 +34,11 @@ namespace blackjack1
             spriteBatch.Draw(texture: Texture, destinationRectangle: DestinationRectangle, color: Color.White, sourceRectangle: SourceRectangle);
         }
 
+        public void Draw(SpriteBatch spriteBatch, Vector2 scale, Vector2 origin)
+        {
+            spriteBatch.Draw(texture: Texture, destinationRectangle: DestinationRectangle, color: Color.White, sourceRectangle: SourceRectangle, scale: scale, origin: origin);
+        }
+
         public bool IsClicked(MouseState state, MouseState previousState)
         {
             if(DestinationRectangle.Contains(state.X, state.Y))
