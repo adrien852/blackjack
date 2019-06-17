@@ -145,7 +145,7 @@ namespace blackjack1
         public virtual void Update(GameTime gameTime, Deck deck, MouseState state, MouseState previousState, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, Bet betBox, ref bool selfTurn, ref bool opponentTurn)
         {
             //Player draws cards by clicking on deck
-            if (deck.IsClicked(state, previousState))
+            if (placeBetsButton.Clicked & deck.IsClicked(state, previousState))
             {
                 DrawCards(1, deck);
                 Console.WriteLine(ShowHandInOutput());

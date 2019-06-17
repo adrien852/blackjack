@@ -181,8 +181,8 @@ namespace blackjack1
             
             spriteBatch.Begin();
             spriteBatch.Draw(background, destinationRectangle: new Rectangle(0, 0, 1600, 900), color: Color.White); //Background
-            //If no money left, "YOU LOOSE" message
-            if (player1.Money + betBox.Total == 0)
+            //If not enough money left, "YOU LOOSE" message
+            if (player1.Money + betBox.Total <= 10)
                 spriteBatch.DrawString(bigInfo, "YOU LOOSE !", new Vector2(600, 560), Color.Red);
             //If dealer has no money left, "YOU WIN" message
             else if (dealer1.Money <= 0)
