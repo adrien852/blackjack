@@ -25,7 +25,7 @@ namespace blackjack1
         }
         
         //Add a token in the proper token list
-        public void SetTokens(Token token)
+        public void SetTokensFromToken(Token token)
         {
             switch (token.Value)
             {
@@ -70,6 +70,9 @@ namespace blackjack1
             }
             Total = total;
         }
+
+        //Get total and recreate tokens
+
 
         //DISPLAY ON SCREEN
         public virtual void Draw(SpriteBatch spriteBatch, SpriteFont score)

@@ -17,6 +17,7 @@ namespace blackjack1
         public List<List<Token>> TokenLists { get; set; }
         public double Money { get; set; }
         public List<Card> Hand { get; set; }
+        public Texture2D tokenTexture { get; set; }
 
         //CONSTRUCTOR
         public Player(double money, Texture2D tokenTexture)
@@ -25,7 +26,8 @@ namespace blackjack1
             Console.WriteLine(Money);
             Hand = new List<Card>();
             TokenLists = new List<List<Token>>();
-            SetTokensFromMoney(tokenTexture);
+            this.tokenTexture = tokenTexture;
+            SetTokensFromMoney();
             TokenRectangle = new Rectangle(-50, 630, 490, 320);
         }
 
@@ -59,21 +61,21 @@ namespace blackjack1
         }
 
         //Convert money into tokens
-        public void SetTokensFromMoney(Texture2D texture)
+        public void SetTokensFromMoney()
         {
             double total = Money;
             TokenLists = new List<List<Token>>();
-            CreateTokenList(10, ref total, texture);
-            CreateTokenList(20, ref total, texture);
-            CreateTokenList(50, ref total, texture);
-            CreateTokenList(1000, ref total, texture);
-            CreateTokenList(500, ref total, texture);
-            CreateTokenList(100, ref total, texture);
+            CreateTokenList(10, ref total);
+            CreateTokenList(20, ref total);
+            CreateTokenList(50, ref total);
+            CreateTokenList(1000, ref total);
+            CreateTokenList(500, ref total);
+            CreateTokenList(100, ref total);
             while (total - 10 >= 0)
             {
-                CreateTokenList(50, ref total, texture);
-                CreateTokenList(20, ref total, texture);
-                CreateTokenList(10, ref total, texture);
+                CreateTokenList(50, ref total);
+                CreateTokenList(20, ref total);
+                CreateTokenList(10, ref total);
             }
         }
 
@@ -110,14 +112,14 @@ namespace blackjack1
         }
 
         //Give enough tokens to not bet too much at once.
-        public void CreateTokenList(int value, ref double total, Texture2D texture)
+        public void CreateTokenList(int value, ref double total)
         {
             TokenLists.Add(new List<Token>());
             if (value > 50)
             {
                 while (total > 3 * value)
                 {
-                    SetTokensFromToken(new Token(value, texture));
+                    SetTokensFromToken(new Token(value, tokenTexture));
                     total -= value;
                 }
             }
@@ -126,7 +128,7 @@ namespace blackjack1
                 int amount = 0;
                 while (total - value >= 0 & amount < 4)
                 {
-                    SetTokensFromToken(new Token(value, texture));
+                    SetTokensFromToken(new Token(value, tokenTexture));
                     total -= value;
                     ++amount;
                 }
@@ -142,7 +144,7 @@ namespace blackjack1
         }
 
         //GAMEPLAY
-        public virtual void Update(GameTime gameTime, Deck deck, MouseState state, MouseState previousState, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, Bet betBox, ref bool selfTurn, ref bool opponentTurn)
+        public virtual void Update(GameTime gameTime, Deck deck, MouseState state, MouseState previousState, Sprite doubleBetButton, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, Bet betBox, ref bool selfTurn, ref bool opponentTurn)
         {
             //Player draws cards by clicking on deck
             if (placeBetsButton.Clicked & deck.IsClicked(state, previousState))
@@ -155,6 +157,11 @@ namespace blackjack1
             {
                 PassTurn(ref selfTurn, ref opponentTurn);
             }
+            //Player double his bet and draw one last card by tapping the doubleBetButton
+            if(Money >= betBox.Total & doubleBetButton.IsClicked(state, previousState))
+            {
+                DoubleAndDraw(betBox, deck, ref selfTurn, ref opponentTurn);
+            }
             //Player can drag tokens around at the beggining of their turn
             if (!placeBetsButton.Clicked)
             {
@@ -166,7 +173,7 @@ namespace blackjack1
                         Token lastToken = tokenList[tokenList.Count - 1];
                         if (lastToken.DragToken(this, betBox, state, previousState) == 1)
                         {
-                            betBox.SetTokens(lastToken);
+                            betBox.SetTokensFromToken(lastToken);
                             tokenList.Remove(lastToken);
                             SetMoneyFromTokens();
                             betBox.SetTotalFromTokens();
@@ -200,7 +207,7 @@ namespace blackjack1
         }
 
         //DISPLAY ON SCREEN
-        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch, SpriteFont info, SpriteFont tinyInfo, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, bool selfTurn)
+        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch, SpriteFont info, SpriteFont tinyInfo, Sprite doubleBetButton, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, bool selfTurn)
         {
             //Player's hand
             if (Hand.Count != 0)
@@ -215,11 +222,14 @@ namespace blackjack1
                 {
                     allinButton.Draw(spriteBatch);
                     placeBetsButton.Draw(spriteBatch);
+
                     spriteBatch.DrawString(tinyInfo, "Must be a multiple of 20", new Vector2(57, 290), Color.White);
                 }
                 else
                 {
                     passButton.Draw(spriteBatch);
+                    if (Hand.Count == 2)
+                        doubleBetButton.Draw(spriteBatch);
                     spriteBatch.DrawString(info, "Hit", new Vector2(1368, 100), Color.Black);
                 }
             }
@@ -265,12 +275,21 @@ namespace blackjack1
             {
                 while(tokenList.Count > 0)
                 {
-                    betBox.SetTokens(tokenList[0]);
+                    betBox.SetTokensFromToken(tokenList[0]);
                     tokenList.Remove(tokenList[0]);
                 }
             }
             SetMoneyFromTokens();
             betBox.SetTotalFromTokens();
+        }
+
+        public void DoubleAndDraw(Bet betBox, Deck deck, ref bool selfTurn, ref bool opponentTurn)
+        {
+            DrawCards(1,deck);
+            Money -= betBox.Total;
+            SetTokensFromMoney();
+            betBox.Total *= 2;
+            PassTurn(ref selfTurn, ref opponentTurn);
         }
     }
 }

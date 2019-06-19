@@ -9,12 +9,14 @@
     <File>F:/MonoGame projects/blackjack1/blackjack1/Content/bg.png</File>
     <File>F:/MonoGame projects/blackjack1/blackjack1/Content/bigInfo.spritefont</File>
     <File>F:/MonoGame projects/blackjack1/blackjack1/Content/card_set.gif</File>
+    <File>F:/MonoGame projects/blackjack1/blackjack1/Content/doublebet.png</File>
     <File>F:/MonoGame projects/blackjack1/blackjack1/Content/Score.spritefont</File>
     <File>F:/MonoGame projects/blackjack1/blackjack1/Content/stand.png</File>
     <File>F:/MonoGame projects/blackjack1/blackjack1/Content/tinyInfo.spritefont</File>
     <File>F:/MonoGame projects/blackjack1/blackjack1/Content/tokens.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

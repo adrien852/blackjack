@@ -24,23 +24,28 @@ namespace blackjack1
         //GAMEPLAY (Artificial intelligence)
         public void Update(GameTime gameTime, Player player, Deck deck, Sprite placeBetsButton, ref bool selfTurn, ref bool startTurn)
         {
-
-            //At the beginning of the turn, flip the last card in his hand
-            if (startTurn)
+            //If player already busted, dealer does not play
+            if (player.GetHandValue() <= 21)
             {
-                var lastCardIndex = Hand.Count - 1;
-                Hand[lastCardIndex].FlipCard();
-                startTurn = false;
+                //At the beginning of the turn, flip the last card in his hand
+                if (startTurn)
+                {
+                    var lastCardIndex = Hand.Count - 1;
+                    Hand[lastCardIndex].FlipCard();
+                    startTurn = false;
+                }
+                //If his total hand value is under 17, keep drawing cards. Else, pass the turn
+                else if (GetHandValue() < 17)
+                    DrawCards(1, deck);
+                else
+                    PassTurn(ref selfTurn);
             }
-            //If his total hand value is under 17, keep drawing cards. Else, pass the turn
-            else if (GetHandValue() < 17)
-                DrawCards(1, deck);
             else
                 PassTurn(ref selfTurn);
         }
 
         //DISPLAY ON SCREEN
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, Animation animation, SpriteFont info, bool selfTurn)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch, Animation animation, SpriteFont info, bool selfTurn, bool startTurn)
         {
             //Dealer's hand
             Hand.ForEach(card => card.Draw(spriteBatch));
@@ -53,7 +58,7 @@ namespace blackjack1
             //Dealer's money
             spriteBatch.DrawString(info, "Money : " + Money, new Vector2(350, 20), Color.White);
             //Dealer's score
-            if (selfTurn)
+            if (selfTurn & !startTurn)
             {
                 spriteBatch.DrawString(info, "Score : " + GetHandValue(), new Vector2(720, 300), Color.White);
             }
