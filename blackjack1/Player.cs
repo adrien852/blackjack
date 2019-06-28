@@ -163,23 +163,37 @@ namespace blackjack1
         //GAMEPLAY
         public virtual void Update(GameTime gameTime, Deck deck, MouseState state, MouseState previousState, Sprite splitButton, Sprite doubleBetButton, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, Bet betBox, ref bool selfTurn, ref bool opponentTurn)
         {
-            //Player draws cards by clicking on deck
-            if (placeBetsButton.Clicked & deck.IsClicked(state, previousState))
+            if (placeBetsButton.Clicked)
             {
-                DrawCards(1, deck);
-                Console.WriteLine(ShowHandInOutput());
+                //Player draws cards by clicking on deck
+                if (deck.IsClicked(state, previousState))
+                {
+                    DrawCards(1, deck);
+                    Console.WriteLine(ShowHandInOutput());
+                }
+                if (Hand.Count == 2 & !isHandSplit & Money >= betBox.Total)
+                {
+                    //Player double his bet and draw one last card by tapping the doubleBetButton
+                    if(doubleBetButton.IsClicked(state, previousState))
+                        DoubleAndDraw(betBox, deck, ref selfTurn, ref opponentTurn);
+                    //Player splits his hand by tapping the split button
+                    if (splitButton.IsClicked(state, previousState) & Hand[0].Number == Hand[1].Number)
+                            SplitHand(betBox);
+                }
+
+                //Player passes turn (or switch hands if split) by tapping passButton or by having 6 cards or by having 21 or more
+                if (passButton.IsClicked(state, previousState) || Hand.Count == 7 || GetHandValue() >= 21)
+                    PassTurn(ref selfTurn, ref opponentTurn);
+
+                //Player splits his hand by tapping the split button
+                /* if (Money >= betBox.Total & splitButton.IsClicked(state, previousState))
+                     SplitHand(betBox);*/
+                //Player double his bet and draw one last card by tapping the doubleBetButton
+                /*if (Money >= betBox.Total & doubleBetButton.IsClicked(state, previousState))
+                    DoubleAndDraw(betBox, deck, ref selfTurn, ref opponentTurn);*/
             }
-            //Player splits his hand by tapping the split button
-            if (Money >= betBox.Total & splitButton.IsClicked(state, previousState))
-                SplitHand(betBox);
-            //Player passes turn (or switch hands if split) by tapping passButton or by having 6 cards or by having 21 or more
-            if (passButton.IsClicked(state, previousState) || Hand.Count == 7 || GetHandValue() >= 21)
-                PassTurn(ref selfTurn, ref opponentTurn);
-            //Player double his bet and draw one last card by tapping the doubleBetButton
-            if(Money >= betBox.Total & doubleBetButton.IsClicked(state, previousState))
-                DoubleAndDraw(betBox, deck, ref selfTurn, ref opponentTurn);
             //Player can drag tokens around at the beggining of their turn
-            if (!placeBetsButton.Clicked)
+            else
             {
                 //If a player's token is dragged inside the bet box, it's added to the bet, removed from player's tokens and the totals are updated
                 foreach (List<Token> tokenList in TokenLists)
