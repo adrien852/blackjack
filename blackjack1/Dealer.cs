@@ -22,10 +22,10 @@ namespace blackjack1
         }
 
         //GAMEPLAY (Artificial intelligence)
-        public void Update(GameTime gameTime, Player player, Deck deck, Sprite placeBetsButton, ref bool selfTurn, ref bool startTurn)
+        public void Update(GameTime gameTime, Player player, Deck deck, ref bool selfTurn, ref bool startTurn)
         {
             //If player already busted, dealer does not play
-            if (player.GetHandValue() <= 21)
+            if (player.GetHandValue() <= 21 || (player.GetStandbyHandValue() <= 21 && player.StandbyHand.Count >= 2))
             {
                 //At the beginning of the turn, flip the last card in his hand
                 if (startTurn)

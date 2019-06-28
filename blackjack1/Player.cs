@@ -17,7 +17,10 @@ namespace blackjack1
         public List<List<Token>> TokenLists { get; set; }
         public double Money { get; set; }
         public List<Card> Hand { get; set; }
+        public List<Card> StandbyHand { get; set; }
         public Texture2D tokenTexture { get; set; }
+        public bool isHandSwitched;
+        public bool isHandSplit;
 
         //CONSTRUCTOR
         public Player(double money, Texture2D tokenTexture)
@@ -25,6 +28,7 @@ namespace blackjack1
             Money = money;
             Console.WriteLine(Money);
             Hand = new List<Card>();
+            StandbyHand = new List<Card>();
             TokenLists = new List<List<Token>>();
             this.tokenTexture = tokenTexture;
             SetTokensFromMoney();
@@ -52,6 +56,19 @@ namespace blackjack1
             int total = 0;
             Hand.ForEach(card => total += card.Value);
             foreach (Card card in Hand)
+            {
+                //If any ace in hand with a busted score, ace changes value
+                if (card.Value == 11 & total > 21)
+                    total -= 10;
+            }
+            return total;
+        }
+        
+        public int GetStandbyHandValue()
+        {
+            int total = 0;
+            StandbyHand.ForEach(card => total += card.Value);
+            foreach (Card card in StandbyHand)
             {
                 //If any ace in hand with a busted score, ace changes value
                 if (card.Value == 11 & total > 21)
@@ -144,7 +161,7 @@ namespace blackjack1
         }
 
         //GAMEPLAY
-        public virtual void Update(GameTime gameTime, Deck deck, MouseState state, MouseState previousState, Sprite doubleBetButton, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, Bet betBox, ref bool selfTurn, ref bool opponentTurn)
+        public virtual void Update(GameTime gameTime, Deck deck, MouseState state, MouseState previousState, Sprite splitButton, Sprite doubleBetButton, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, Bet betBox, ref bool selfTurn, ref bool opponentTurn)
         {
             //Player draws cards by clicking on deck
             if (placeBetsButton.Clicked & deck.IsClicked(state, previousState))
@@ -152,16 +169,15 @@ namespace blackjack1
                 DrawCards(1, deck);
                 Console.WriteLine(ShowHandInOutput());
             }
-            //Player passes turn by tapping passButton or by having 6 cards or by having 21 or more
+            //Player splits his hand by tapping the split button
+            if (Money >= betBox.Total & splitButton.IsClicked(state, previousState))
+                SplitHand(betBox);
+            //Player passes turn (or switch hands if split) by tapping passButton or by having 6 cards or by having 21 or more
             if (passButton.IsClicked(state, previousState) || Hand.Count == 7 || GetHandValue() >= 21)
-            {
                 PassTurn(ref selfTurn, ref opponentTurn);
-            }
             //Player double his bet and draw one last card by tapping the doubleBetButton
             if(Money >= betBox.Total & doubleBetButton.IsClicked(state, previousState))
-            {
                 DoubleAndDraw(betBox, deck, ref selfTurn, ref opponentTurn);
-            }
             //Player can drag tokens around at the beggining of their turn
             if (!placeBetsButton.Clicked)
             {
@@ -207,17 +223,29 @@ namespace blackjack1
         }
 
         //DISPLAY ON SCREEN
-        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch, SpriteFont info, SpriteFont tinyInfo, Sprite doubleBetButton, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, bool selfTurn)
+        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch, SpriteFont info, SpriteFont tinyInfo, Sprite splitButton, Sprite doubleBetButton, Sprite allinButton, Sprite passButton, Sprite placeBetsButton, bool selfTurn)
         {
             //Player's hand
             if (Hand.Count != 0)
                 Hand.ForEach(card => card.Draw(spriteBatch));
+            //Player's standby hand
+            if(StandbyHand.Count != 0)
+                StandbyHand.ForEach(card => card.Draw(spriteBatch));
             //Player's score
             if (placeBetsButton.Clicked)
-                spriteBatch.DrawString(info, "Score : " + GetHandValue(), new Vector2(720, 560), Color.White);
-            //Stand and Allin buttons
+            {
+                if (!isHandSwitched)
+                    spriteBatch.DrawString(info, "Score : " + GetHandValue(), new Vector2(720, 560), Color.White);
+                if (isHandSwitched)
+                {
+                    spriteBatch.DrawString(info, "Score : " + GetStandbyHandValue(), new Vector2(720, 560), Color.White);
+                    spriteBatch.DrawString(info, "Score : " + GetHandValue(), new Vector2(972, 560), Color.White);
+                }
+            }
+            //Buttons
             if (selfTurn)
             {
+                //During the betting phase, only Allin and Bet buttons available
                 if (!placeBetsButton.Clicked)
                 {
                     allinButton.Draw(spriteBatch);
@@ -225,11 +253,18 @@ namespace blackjack1
 
                     spriteBatch.DrawString(tinyInfo, "Must be a multiple of 20", new Vector2(57, 290), Color.White);
                 }
+                //During the playing phase, the deck is shown as clickable and Pass button available
                 else
                 {
                     passButton.Draw(spriteBatch);
-                    if (Hand.Count == 2)
+                    //If 2 cards and not already split, can double bet
+                    if (Hand.Count == 2 & !isHandSplit)
+                    {
                         doubleBetButton.Draw(spriteBatch);
+                        //And if both cards has same number, can split
+                        if(Hand[0].Number == Hand[1].Number)
+                            splitButton.Draw(spriteBatch);
+                    }
                     spriteBatch.DrawString(info, "Hit", new Vector2(1368, 100), Color.Black);
                 }
             }
@@ -247,21 +282,37 @@ namespace blackjack1
         //Give cards to the player, place them in the player slot and remove them from the deck
         public virtual void DrawCards(int numberOfCards, Deck deck)
         {
-
             for (int i = 0; i < numberOfCards; i++)
             {
                 Card card = deck.Cards[0];
                 var size = Hand.Count();
                 Hand.Add(card);
-                card.DestinationRectangle = new Rectangle(738 + (size * 40), 630, 125, 181);
+                if(!isHandSwitched)
+                    card.DestinationRectangle = new Rectangle(738 + (size * 40), 630, 125, 181);
+                else
+                    card.DestinationRectangle = new Rectangle(1000 + (size * 40), 630, 125, 181);
                 deck.Cards.Remove(card);
             }
         }
 
         public void PassTurn(ref bool selfTurn, ref bool opponentTurn)
         {
-            selfTurn = false;
-            opponentTurn = true;
+            if (isHandSwitched)
+            {
+                selfTurn = false;
+                opponentTurn = true;
+                isHandSplit = false;
+            }
+            else if (isHandSplit)
+            {
+                SwitchHands();
+                isHandSwitched = true;
+            }
+            else
+            {
+                selfTurn = false;
+                opponentTurn = true;
+            }
         }
 
         public void DiscardHand()
@@ -290,6 +341,25 @@ namespace blackjack1
             SetTokensFromMoney();
             betBox.Total *= 2;
             PassTurn(ref selfTurn, ref opponentTurn);
+        }
+
+        public void SwitchHands()
+        {
+            List<Card> tempHand = Hand;
+            Hand = StandbyHand;
+            StandbyHand = tempHand;
+
+        }
+
+        public void SplitHand(Bet betBox)
+        {
+            Hand[1].DestinationRectangle = new Rectangle(1000, 630, 125, 181);
+            StandbyHand.Add(Hand[1]);
+            Hand.Remove(Hand[1]);
+            isHandSplit = true;
+            Money -= betBox.Total;
+            SetTokensFromMoney();
+            betBox.Total *= 2;
         }
     }
 }

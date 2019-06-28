@@ -21,6 +21,7 @@ namespace blackjack1
         Texture2D allin;
         Texture2D placeBets;
         Texture2D doubleBet;
+        Texture2D split;
         SpriteFont info;
         SpriteFont tinyInfo;
         SpriteFont bigInfo;
@@ -31,6 +32,7 @@ namespace blackjack1
         Sprite standButton;
         Sprite placeBetsButton;
         Sprite doubleBetButton;
+        Sprite splitButton;
         Bet betBox;
         Player player1;
         Dealer dealer1;
@@ -86,10 +88,12 @@ namespace blackjack1
             tinyInfo = Content.Load<SpriteFont>("tinyInfo");
             bigInfo = Content.Load<SpriteFont>("bigInfo");
             doubleBet = Content.Load<Texture2D>("doubleBet");
+            split = Content.Load<Texture2D>("split");
             allinButton = new Sprite(allin, new Rectangle(330, 630, 170, 87), new Rectangle(0, 0, 170, 87));
             standButton = new Sprite(stand, new Rectangle(1315, 200, 170, 87), new Rectangle(0, 0, 170, 87));
             doubleBetButton = new Sprite(doubleBet, new Rectangle(1315, 280, 170, 87), new Rectangle(0, 0, 170, 87));
             placeBetsButton = new Sprite(placeBets, new Rectangle(330, 730, 170, 87), new Rectangle(0, 0, 170, 87));
+            splitButton = new Sprite(split, new Rectangle(1315, 360, 170, 87), new Rectangle(0, 0, 170, 87));
             animation = new Animation();
             betBox = new Bet();
             player1 = new Player(2000, token);
@@ -122,7 +126,7 @@ namespace blackjack1
                 //Player's turn
                 if (playerTurn)
                 {
-                    player1.Update(gameTime, mainDeck, state, previousState, doubleBetButton, allinButton, standButton, placeBetsButton, betBox, ref playerTurn, ref AITurn);
+                    player1.Update(gameTime, mainDeck, state, previousState, splitButton, doubleBetButton, allinButton, standButton, placeBetsButton, betBox, ref playerTurn, ref AITurn);
                     if (placeBetsButton.Clicked & !firstCards)
                     {
                         player1.DrawCards(2, mainDeck);
@@ -135,7 +139,7 @@ namespace blackjack1
                 else if (AITurn)
                 {
                     //First action is delayed
-                    if (firstDealerAction & player1.GetHandValue() > 21)
+                    if (firstDealerAction & player1.GetHandValue() > 21 & (player1.GetStandbyHandValue() > 21 || player1.StandbyHand.Count < 2))
                     {
                         lastAction = gameTime.TotalGameTime;
                         firstDealerAction = false;
@@ -143,7 +147,7 @@ namespace blackjack1
                     //One second between each action
                     if (lastAction + TimeSpan.FromMilliseconds(1500) < gameTime.TotalGameTime)
                     {
-                        dealer1.Update(gameTime, player1, mainDeck, placeBetsButton, ref AITurn, ref startDealerTurn);
+                        dealer1.Update(gameTime, player1, mainDeck, ref AITurn, ref startDealerTurn);
                         lastAction = gameTime.TotalGameTime;
                     }
                 }
@@ -156,12 +160,21 @@ namespace blackjack1
                     {
                         int playerScore = player1.GetHandValue();
                         int dealerScore = dealer1.GetHandValue();
-                        ShareBets(Winner(playerScore, dealerScore));
+                        ShareBets(Winner(playerScore, dealerScore, player1.isHandSwitched), player1.isHandSwitched);
+                        player1.DiscardHand();
+                        if(player1.isHandSwitched)
+                        {
+                            player1.SwitchHands();
+                            playerScore = player1.GetHandValue();
+                            ShareBets(Winner(playerScore, dealerScore, player1.isHandSwitched), player1.isHandSwitched);
+                            player1.DiscardHand();
+                            player1.isHandSwitched = false;
+                        }
+                        dealer1.DiscardHand();
                         player1.SetTokensFromMoney();
                         dealer1.SetTokensFromMoney();
-                        player1.DiscardHand();
-                        dealer1.DiscardHand();
                     }
+
                     mainDeck = new Deck(52, cards);
                     betBox = new Bet();
                     dealer1.Shuffle(mainDeck);
@@ -191,15 +204,15 @@ namespace blackjack1
             spriteBatch.Draw(background, destinationRectangle: new Rectangle(0, 0, 1600, 900), color: Color.White); //Background
             //If not enough money left, "YOU LOOSE" message
             if (player1.Money + betBox.Total <= 10)
-                spriteBatch.DrawString(bigInfo, "YOU LOOSE !", new Vector2(600, 560), Color.Red);
+                spriteBatch.DrawString(bigInfo, "YOU LOSE !", new Vector2(640, 560), Color.Red);
             //If dealer has no money left, "YOU WIN" message
             else if (dealer1.Money <= 0)
-                spriteBatch.DrawString(bigInfo, "YOU WIN !", new Vector2(600, 560), Color.Red);
+                spriteBatch.DrawString(bigInfo, "YOU WIN !", new Vector2(640, 560), Color.Red);
             else
             {
                 mainDeck.Draw(spriteBatch); //Deck
                 betBox.Draw(spriteBatch, info); //Bet box
-                player1.Draw(gameTime, spriteBatch, info, tinyInfo, doubleBetButton, allinButton, standButton, placeBetsButton, playerTurn); //Player drawing
+                player1.Draw(gameTime, spriteBatch, info, tinyInfo, splitButton, doubleBetButton, allinButton, standButton, placeBetsButton, playerTurn); //Player drawing
                 dealer1.Draw(gameTime, spriteBatch, animation, info, AITurn, startDealerTurn); //Dealer drawing
             }
             spriteBatch.End();
@@ -207,7 +220,7 @@ namespace blackjack1
         }
 
         //Return 0 if draw, return 1 if player wins, return 2 if dealer wins, return 3 if player wins by blackjack
-        protected int Winner(int playerScore, int dealerScore)
+        protected int Winner(int playerScore, int dealerScore, bool isHandSwitched)
         {
             if (playerScore <= 21)
             {
@@ -215,10 +228,22 @@ namespace blackjack1
                 {
                     //If blackjack for player but not for dealer
                     if (!(dealerScore == 21 & dealer1.Hand.Count == 2))
-                        return 3;
+                    {
+                        //If player has split
+                        if (isHandSwitched)
+                            return 1;
+                        else
+                            return 3;
+                    }
                     //If blackjacks on both sides
                     if (dealerScore == 21 & dealer1.Hand.Count == 2)
-                        return 0;
+                    {
+                        //If player has split
+                        if (isHandSwitched)
+                            return 2;
+                        else
+                            return 0;
+                    }
                 }
                 //If blackjack for dealer but not for player
                 else if (dealerScore == 21 & dealer1.Hand.Count == 2)
@@ -247,22 +272,36 @@ namespace blackjack1
             return 2;
         }
 
-        protected void ShareBets(int result)
+        protected void ShareBets(int result, bool isHandSwitched)
         {
             switch (result)
             {
-                //If draw, get back the bet
+                //If draw, get back the bet but if split, half back the bet
                 case 0:
-                    player1.Money += betBox.Total;
+                    if(!isHandSwitched)
+                        player1.Money += betBox.Total;
+                    else
+                        player1.Money += betBox.Total / 2;
                     break;
-                //If win, get twice the bet
+                //If win, get twice the bet but if split, once the bet
                 case 1:
-                    player1.Money += betBox.Total * 2;
-                    dealer1.Money -= betBox.Total;
+                    if (!isHandSwitched)
+                    {
+                        player1.Money += betBox.Total * 2;
+                        dealer1.Money -= betBox.Total;
+                    }
+                    else
+                    {
+                        player1.Money += betBox.Total;
+                        dealer1.Money -= betBox.Total / 2;
+                    }
                     break;
-                //If lose, get nothing
+                //If lose, get nothing but if split, dealer get only half the bet
                 case 2:
-                    dealer1.Money += betBox.Total;
+                    if(!isHandSwitched)
+                        dealer1.Money += betBox.Total;
+                    else
+                        dealer1.Money += betBox.Total / 2;
                     break;
                 //If win by blackjack, get two-and-a-half times the bet
                 case 3:
